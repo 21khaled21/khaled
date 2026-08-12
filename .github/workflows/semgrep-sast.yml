@@ -3,32 +3,21 @@ name: Semgrep SAST Security Scan
 on:
   push:
     branches: ["main", "master"]
-  workflow_dispatch:
 
 jobs:
   semgrep-scan:
     name: Semgrep Security Analysis
     runs-on: ubuntu-latest
 
+    container:
+      image: semgrep/semgrep
+
     permissions:
       contents: read
-      security-events: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Run Semgrep SAST
-        uses: semgrep/semgrep-action@v1
-        with:
-          config: |
-            p/security-audit
-            p/owasp-top-ten
-            p/javascript
-          generateSarif: true
-
-      - name: Upload SARIF report to GitHub Security
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: semgrep.sarif
+        run: semgrep scan --config auto
